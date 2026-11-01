@@ -1,0 +1,137 @@
+import asyncio
+import logging
+import os
+from io import BytesIO
+from pathlib import Path
+import httpx
+from aiogram import Bot, Dispatcher, F
+from aiogram.exceptions import TelegramAPIError
+from aiogram.filters import Command, CommandStart
+from aiogram.types import Message
+from dotenv import load_dotenv
+
+
+# загружаем переменные окружения
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(env_path)
+
+API_URL = os.environ["API_URL"].rstrip("/")
+API_KEY = os.environ["INTERNAL_API_KEY"]
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
+
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN is not configured")
+
+
+# создаем диспетчер
+dp = Dispatcher()
+
+
+# обрабатываем команду /start
+@dp.message(CommandStart())
+async def start_handler(message: Message):
+    await message.answer("У меня есть товар")
+
+
+# добавление товара
+@dp.message(Command("add"))
+async def add_product_handler(message: Message):
+    if message.from_user is None:
+        return
+
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("У вас нет прав для добавления товаров 😔")
+        return
+
+    await message.answer("Отправьте фото товара с названием в подписи к изображению 📷")
+
+
+# получаем фото и название товара
+@dp.message(F.photo, F.chat.type == "private")
+async def handle_product_photo(message: Message, bot: Bot):
+    # проверяем админа
+    if message.from_user is None or message.from_user.id != ADMIN_ID:
+        await message.answer("У вас нет прав для добавления товаров 😔")
+        return
+
+    # получаем и проверяем название из подписи
+    name = (message.caption or "").strip()
+
+    if not name or len(name) > 200:
+        await message.answer("Добавьте название товара в подпись к фото 📝 (от 1 до 200 символов)")
+        return
+
+    # получаем и проверяем фото
+    photo = message.photo[-1]
+    max_size = 5 * 1024 * 1024
+
+    if photo.file_size is not None and photo.file_size > max_size:
+        await message.answer("Фото слишком большое 🤯")
+        return
+
+    # скачиваем фото и отправляем в api
+    try:
+        with BytesIO() as image_buffer: # получаем изображение из telegram по file_id
+            await bot.download(
+                photo.file_id,
+                destination=image_buffer
+            )
+
+            # проверка размера
+            if image_buffer.getbuffer().nbytes > max_size:
+                await message.answer("Фото слишком большое 🤯")
+                return
+
+            # создание клиента
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{API_URL}/products",
+                    headers={"X-API-Key": API_KEY},
+                    data={"name": name},
+                    files={
+                        "image": (
+                            "telegram.jpg",
+                            image_buffer,
+                            "image/jpeg"
+                        )
+                    }
+                )
+
+    except TelegramAPIError:
+        logging.exception("Telegram download failed")
+        await message.answer("Не удалось скачать фото ☹️")
+        return
+
+    except httpx.RequestError:
+        logging.exception("FastAPI request failed")
+        await message.answer("Не удалось связаться с сервером 😵")
+        return
+
+    # проверка ответа api
+    if response.status_code != 201:
+        logging.error(
+            "API error %s: %s",
+            response.status_code,
+            response.text
+        )
+        await message.answer("Ошибка создания товара ☹️")
+        return
+
+    # сообщение об успешном создании
+    product = response.json()
+
+    await message.answer(
+        f"Товар «{product['name']}» успешно создан 👍\n"
+#         f"ID: {product['id']}"
+    )
+
+
+# запуск бота
+async def main():
+    async with Bot(token=BOT_TOKEN) as bot:
+        await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

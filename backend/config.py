@@ -19,3 +19,5 @@ MINIO_CONFIG = {
     "secret_key": os.getenv("MINIO_ROOT_PASSWORD"),
     "secure": False
 }
+
+INTERNAL_API_KEY = os.environ["INTERNAL_API_KEY"]

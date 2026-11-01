@@ -1,11 +1,12 @@
 import logging
 from uuid import uuid4
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request, Depends
 from fastapi.responses import Response
 from starlette.concurrency import run_in_threadpool
 from db import fetch_products, insert_product, fetch_product_image_key
 from storage import get_image, minio_client
 from minio.error import S3Error
+from auth import verify_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,11 @@ async def get_products(request: Request):
     return products
 
 
-@app.post("/products", status_code=201)
+@app.post(
+    "/products",
+    status_code=201,
+    dependencies=[Depends(verify_api_key)]
+)
 async def create_product(
     name: str = Form(),
     image: UploadFile = File()
