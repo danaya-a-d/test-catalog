@@ -49,7 +49,7 @@ async def start_handler(message: Message):
     )
 
     await message.answer(
-        "Добавить товар 👀",
+        "Посмотри, какие товары у нас есть 👀",
         reply_markup=keyboard
     )
 
