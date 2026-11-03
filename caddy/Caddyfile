@@ -9,7 +9,13 @@
 }
 
 {$API_DOMAIN} {
-    import api_balancer
+    handle /telegram/webhook {
+        reverse_proxy bot:8081
+    }
+
+    handle {
+        import api_balancer
+    }
 }
 
 :8080 {
