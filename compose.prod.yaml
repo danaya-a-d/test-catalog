@@ -85,6 +85,28 @@ services:
     mem_limit: 256m
 
 
+  bot2:
+    build:
+      context: .
+      dockerfile: bot/Dockerfile
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      API_URL: http://caddy:8080
+
+    expose:
+      - "8081"
+
+    depends_on:
+      - caddy
+
+    mem_limit: 256m
+
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
