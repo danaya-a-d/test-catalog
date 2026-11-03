@@ -1,3 +1,9 @@
 {$API_DOMAIN} {
-    reverse_proxy api:8000
+    reverse_proxy api:8000 api2:8000 {
+        lb_policy round_robin
+        health_uri /health
+        health_interval 10s
+        health_timeout 2s
+        lb_try_duration 5s
+    }
 }
