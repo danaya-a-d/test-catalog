@@ -22,7 +22,7 @@ export default function RefreshButton() {
             onClick={handleRefresh}
             disabled={isPending}
         >
-            {isPending ? "Обновляем..." : "↻ Обновить"}
+            {isPending ? "Обновляем..." : "Обновить"}
         </button>
     );
 }
