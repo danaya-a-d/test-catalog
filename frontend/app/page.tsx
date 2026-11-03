@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import styles from "./page.module.css";
+import RefreshButton from "./RefreshButton";
 
 type Product = {
     id: number;
@@ -60,10 +61,14 @@ async function ProductsList() {
 }
 
 // компонент страницы товаров
+
 export default function HomePage() {
     return (
         <main className={styles.page}>
-            <h1>Каталог</h1>
+            <div className={styles.heading}>
+                <h1>Каталог</h1>
+                <RefreshButton />
+            </div>
 
             <Suspense
                 fallback={

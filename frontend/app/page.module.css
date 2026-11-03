@@ -67,3 +67,32 @@
 .retryButton:hover {
   background: #1d4ed8;
 }
+
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.refreshButton {
+  padding: 9px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #20232a;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
