@@ -74,10 +74,10 @@ services:
       - .env
 
     environment:
-      API_URL: http://api:8000
+      API_URL: http://caddy:8080
 
     depends_on:
-      - api
+      - caddy
 
     mem_limit: 256m
 

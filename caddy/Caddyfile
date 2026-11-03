@@ -1,4 +1,4 @@
-{$API_DOMAIN} {
+(api_balancer) {
     reverse_proxy api:8000 api2:8000 {
         lb_policy round_robin
         health_uri /health
@@ -6,4 +6,12 @@
         health_timeout 2s
         lb_try_duration 5s
     }
+}
+
+{$API_DOMAIN} {
+    import api_balancer
+}
+
+:8080 {
+    import api_balancer
 }
