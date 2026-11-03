@@ -7,7 +7,12 @@ import httpx
 from aiogram import Bot, Dispatcher, F
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message
+from aiogram.types import (
+    Message,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    WebAppInfo,
+)
 from dotenv import load_dotenv
 
 
@@ -19,6 +24,7 @@ API_URL = os.environ["API_URL"].rstrip("/")
 API_KEY = os.environ["INTERNAL_API_KEY"]
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
+WEBAPP_URL = os.environ["WEBAPP_URL"]
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN is not configured")
@@ -31,7 +37,21 @@ dp = Dispatcher()
 # обрабатываем команду /start
 @dp.message(CommandStart())
 async def start_handler(message: Message):
-    await message.answer("У меня есть товар")
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Открыть каталог 🛍️",
+                    web_app=WebAppInfo(url=WEBAPP_URL)
+                )
+            ]
+        ]
+    )
+
+    await message.answer(
+        "Добавить товар 👀",
+        reply_markup=keyboard
+    )
 
 
 # добавление товара
