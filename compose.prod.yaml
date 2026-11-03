@@ -1,0 +1,22 @@
+services:
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Required}
+
+    ports:
+      - "127.0.0.1:9010:9000"
+      - "127.0.0.1:9011:9001"
+
+    volumes:
+      - minio_data:/data
+
+    mem_limit: 1g
+    memswap_limit: 2g
+
+volumes:
+  minio_data:
