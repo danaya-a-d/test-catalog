@@ -3,10 +3,12 @@
 import styles from "./page.module.css";
 
 type ErrorProps = {
-    retry: () => void;
+    unstable_retry: () => void;
 };
 
-export default function ErrorPage({retry}: ErrorProps) {
+export default function ErrorPage({
+                                      unstable_retry,
+                                  }: ErrorProps) {
     return (
         <main className={styles.page}>
             <h1 className={styles.title}>Каталог</h1>
@@ -17,7 +19,7 @@ export default function ErrorPage({retry}: ErrorProps) {
                 <button
                     type="button"
                     className={styles.retryButton}
-                    onClick={retry}
+                    onClick={unstable_retry}
                 >
                     Попробовать снова
                 </button>

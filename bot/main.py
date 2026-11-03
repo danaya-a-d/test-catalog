@@ -59,7 +59,6 @@ async def start_handler(message: Message):
         ]
     )
 
-
     text = "Посмотри, какие товары у нас есть 👀"
 
     if message.from_user and message.from_user.id == ADMIN_ID:
@@ -161,7 +160,6 @@ async def handle_product_photo(message: Message, bot: Bot):
 
     await message.answer(
         f"Товар «{product['name']}» успешно создан 👍\n"
-#         f"ID: {product['id']}"
     )
 
 
