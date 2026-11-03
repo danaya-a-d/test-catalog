@@ -59,10 +59,17 @@ async def start_handler(message: Message):
         ]
     )
 
+
+    text = "Посмотри, какие товары у нас есть 👀"
+
+    if message.from_user and message.from_user.id == ADMIN_ID:
+        text += "\n\nДля добавления товара используй /add 📸"
+
     await message.answer(
-        "Посмотри, какие товары у нас есть 👀",
+        text,
         reply_markup=keyboard
     )
+
 
 
 # добавление товара
